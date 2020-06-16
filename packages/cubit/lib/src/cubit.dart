@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'transition.dart';
+
 /// {@template cubit}
 /// A `cubit` is a reimagined [bloc](https://pub.dev/packages/bloc)
 /// which removes events and relies on methods to emit new states instead.
@@ -25,11 +27,30 @@ abstract class Cubit<T> extends Stream<T> {
 
   T _state;
 
+  /// Called whenever a [transition] occurs with the given [transition].
+  /// A [transition] occurs when a new `state` is emitted.
+  /// [onTransition] is called before the `state` of the `cubit` is updated.
+  /// A great spot to add logging/analytics at the individual `cubit` level.
+  ///
+  /// **Note: `super.onTransition` should always be called last.**
+  /// ```dart
+  /// @override
+  /// void onTransition(Transition<State> transition) {
+  ///   // Custom onTransition logic goes here
+  ///
+  ///   // Always call super.onTransition with the current transition
+  ///   super.onTransition(transition);
+  /// }
+  /// ```
+  @mustCallSuper
+  void onTransition(Transition<T> transition) {}
+
   /// Updates the [state] of the `cubit` to the provided [state].
   /// [emit] does nothing if the `cubit` has been closed.
   @protected
   void emit(T state) async {
     if (state == _state || _controller.isClosed) return;
+    onTransition(Transition(currentState: _state, nextState: state));
     _state = state;
     _controller.add(state);
   }

@@ -1,3 +1,7 @@
+# 0.0.7
+
+- feat: add `onTransition` to `cubit`
+
 # 0.0.6
 
 - **BREAKING**: ignore duplicate states
