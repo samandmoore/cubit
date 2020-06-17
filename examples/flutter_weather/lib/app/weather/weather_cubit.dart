@@ -28,10 +28,18 @@ class WeatherCubit extends SafeCubit<WeatherState> {
 
     emit(WeatherLoadInProgress());
 
+    // so, the idea here is that you can wrap your method in `safely` and it
+    // will catch all exceptions and report them to a global error handling
+    // module. this could do things like pop up an alert / report to crashlytics
+    // etc
     safely(() async {
       try {
         final weather = await _weatherService.getWeather(city);
         emit(WeatherLoadSuccess(weather));
+        // BUT, you can still try/catch here yourself to handle any errors you
+        // specifically wanna deal with yourself. e.g. here we handle some
+        // known exceptions, but we also wrap in "safely" so that for errors
+        // we're not prepared to handle, we can rely on the global behavior
       } on ClientException catch (_) {
         emit(WeatherLoadFailure());
       }
